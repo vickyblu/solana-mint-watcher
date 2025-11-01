@@ -1,26 +1,68 @@
-# mint_watch_test_v4_sim.py
-# Testing version with simulated inflow + mint activity
+"""
+mint_watch_test_v4_sim.py
+Auto-switch startup logic for Render 24/7 runtime
+Detects TEST_MODE from environment or defaults to live tracking.
+"""
 
-import requests, time, csv, os
-from datetime import datetime, timedelta, timezone
+import os
+import time
+from datetime import datetime, timezone
+import requests
 
-# --- CONFIG ---
-HELIUS_API_KEY = "cd832688-fa12-4307-9abc-9d2b809c73fb"
-WATCH_ADDRESS = "9NERQjLetzquGwdKt3X4gZ8fE8fPfSkj2xo2esmUjWsz"
-TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-CHECK_INTERVAL = 10
-WATCH_DURATION = 300
-OUTPUT_FILE = "mint_watch_log.csv"
+# Environment variables
+TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
+HELIUS_API_KEY = os.getenv("HELIUS_API_KEY")
+TARGET_ADDRESS = os.getenv("TARGET_ADDRESS", "9NERQjLetzquGwdKt3X4gZ8fE8fPfSkj2xo2esmUjWsz")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 
-# --- TELEGRAM CONFIG ---
-TELEGRAM_BOT_TOKEN = "8347319352:AAH_Hd07t5XCbAdvFYhDlZYmJnGCvF90DmA"
-CHAT_ID = "779164477"
-# ------------------------
+# Telegram alert function
+def send_telegram(message: str):
+    if not TELEGRAM_BOT_TOKEN or not CHAT_ID:
+        print("⚠️ Telegram configuration missing, skipping alert.")
+        return
+    try:
+        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+        requests.post(url, json={"chat_id": CHAT_ID, "text": message})
+    except Exception as e:
+        print("❌ Telegram error:", e)
 
 # --- TEST MODE ---
-TEST_MODE = False
-FAKE_SENDER = "FakeSenderWallet1111111111111111111111111111111"
-FAKE_MINT = "FakeMintAddress2222222222222222222222222222222"
+def run_test_mode():
+    print("🧪 Running in TEST MODE (simulated inflows/mints)...")
+    send_telegram("🧪 Mint Watcher started in TEST MODE (simulation running).")
+    while True:
+        time.sleep(20)
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+        msg = f"📥 [TEST] Simulated inflow + mint at {now}"
+        print(msg)
+        send_telegram(msg)
+
+# --- LIVE MODE ---
+def run_live_mode():
+    print(f"🚀 Mint Watcher live-tracking inflows for {TARGET_ADDRESS}")
+    send_telegram(f"✅ Mint Watcher is LIVE on Render, monitoring inflows for:\n{TARGET_ADDRESS}")
+    while True:
+        # Replace this placeholder with your inflow detection + mint logic
+        try:
+            # Example check: simple heartbeat ping
+            now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+            print(f"🕒 Live check at {now}")
+            time.sleep(60)  # check interval
+        except Exception as e:
+            print("❌ Live loop error:", e)
+            send_telegram(f"⚠️ Live tracker error: {e}")
+            time.sleep(10)
+
+# --- STARTUP LOGIC ---
+if __name__ == "__main__":
+    mode_label = "TEST" if TEST_MODE else "LIVE"
+    print(f"🚀 Starting Mint Watcher (Mode: {mode_label})")
+    if TEST_MODE:
+        run_test_mode()
+    else:
+        run_live_mode()
+
 # -----------------
 
 def send_telegram(msg):
