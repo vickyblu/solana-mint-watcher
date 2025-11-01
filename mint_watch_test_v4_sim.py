@@ -15,7 +15,7 @@ OUTPUT_FILE = "mint_watch_log.csv"
 # --- TELEGRAM CONFIG ---
 TELEGRAM_BOT_TOKEN = "8347319352:AAH_Hd07t5XCbAdvFYhDlZYmJnGCvF90DmA"
 CHAT_ID = "779164477"
-# -------------------------
+# ------------------------
 
 # --- TEST MODE ---
 TEST_MODE = True
