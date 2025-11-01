@@ -18,7 +18,7 @@ CHAT_ID = "779164477"
 # ------------------------
 
 # --- TEST MODE ---
-TEST_MODE = True
+TEST_MODE = False
 FAKE_SENDER = "FakeSenderWallet1111111111111111111111111111111"
 FAKE_MINT = "FakeMintAddress2222222222222222222222222222222"
 # -----------------
